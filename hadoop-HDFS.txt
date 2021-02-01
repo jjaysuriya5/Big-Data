@@ -1,0 +1,146 @@
+Shell is an interface to unix for initiating all unix commands 
+$ >> shell prompt
+we have logged in to client machine where in we initiate all activities with the distribured file system.
+
+ssh >>> secure shell which hepls me to connect to remote machine
+clear >> Clearing the screen ( ctrl + l )
+pwd >> print working directory
+echo >> print the details ( "a" / 'a' / a )
+echo $LOGNAME >> print the login name 
+echo $HOME >> print the home path
+who >> who are all connected 
+date >> to print the date
+cal >> to display the calander 
+man cat >> this will give the manual ( q to quit the manual )
+
+cat > Samplefime << press enter >>      >> to store the file
+lines
+
+then press ctrl+d to quit
+
+cat Samplefime    >>>> To display
+
+cat >> Samplefile  ( double arroe to append , one arrow means create a file )
+type line
+ctrl + D to exit
+ cat /home/cdh7bmanipal20/SampleFile.txt  >> /home/cdh7bmanipal20/Labs/SampleFile.txt 
+[append from one path to another path ]
+
+cp src tgt >> copy from source to target 
+
+rm SampleFile   >> remove file
+
+mkdir labs >> making directory
+
+ls -l >> this will show if it is a directory , [d is dorectory , - if file ]
+
+mv /home/cdh7manipal20/samplefile.txt /home/cdh7manipal20/Labs  
+if under same directory we dont needto give the path.. [mv samplefile.txt Labs]
+
+mv Samplefile jj [ if no shuch thing is there it renames the file ]
+
+mkdir /Labs/Day1/Session/Assign   >>> this will error
+mkdir -p /Labs/Day1/Session/Assign 
+
+cd path
+cd  [home directory ]
+cd .. [ change the path to parrent directory , one level up ]
+cd ../.. [ change the path to parrent directory , two level up ]
+
+rmdir assign1 [ this will work only if it is empty , else error ]
+rm -r Day1 [ This will remove even if the file is not empty ]
+
+touch <filename>  [ create a file ]
+
+mkdir f
+cat > f
+
+here the both are same and the dir is replaced with the filecreated
+
+if a file is created first , then a directory of same name then error
+cat > f
+mkdir > f
+
+
+
+Hadoop the data is stored as blocks ( 128 mb ) with a default replication factor as 3.
+any commands are prefixed with "hadoop fs" will initiate a connection with the name node.
+
+a) Creating a directory:
+	hadoop fs -mkdir demo   >> this will create a directory 
+	[ the path is not known to us only the name node does ]
+	hadoop fs -ls [ list the directory ]
+
+web UI >>  http://sln.cloudloka.com:50070
+
+c) copy
+
+hadoop fs -put <localpath> <hdfspath>
+
+d)read file in hdfs
+
+hadoop fs -cat demo/SampleFile.txt  >> dont do this if the file size is very large
+hadoop fs -cat demo/SampleFile.txt | head -n 5
+hadoop fs -cat demo/SampleFile.txt | tail -n 5
+
+e) from hdfs to local 
+
+hadoop fs get <hdfs path> <local path>
+
+f) renaming
+
+hadoop fs -mv <filename same path> <new filename same path>
+
+g) moving
+
+hadoop fs -mv <src filename path> tgt filename path>
+
+1)fsimage - master file system image
+2)exitlog is cached in memory of name which contains the log of recent file
+
+after some point in the time when the editlog is large , it has to be merged with fsimage.
+This is a time consuming exercse . this is called as checkpointing
+name node takes help of secondary name node to perform checkpointing
+
+stand by name node:
+-------------------  It has uptodate copies of fsimage and editlog
+
+when the secondary name node fails , the stand by name node becomes active
+this was introduced in hadoop 2.x , in the absence of stand by name node ,the name node is single ppoint of failure
+
+demons are javaprocess which runs in the background:
+1) name node
+2) data node 
+3) secondary namenode
+4) Stande by name node
+
+jps  >> jabe process
+sudo jps
+
+YARN demons are :
+-----------------
+1)Rsource manager 
+2)Node Manager
+
+Node manager and data node demons coexist  because executin should happen at a place where the daat resides
+[Data Locality]
+
+Any program we write for the data stores on HDFS , a conn needs to be established to the resource manager
+
+yarn jar >>> 
+
+any program we write has to be a java program . when i compile a java program ,
+we get a java class file . an arvchive of all the java class is called as jar file , 
+which is submitted to yarn for execution
+
+YARN:
+----
+scheduling and monitoring map reduce job
+resource negotiator - negotiates for resources for program execution
+program execution - map reduce program execution on the data npdes
+resources - ( cpu , RAM , HD ) ==> container collection of all
+
+1) master - Resource Manager , its yarn master which takes care of scheduling and monitoring of all map reduce jobs
+2) slave - Node Manager , reports to the master about the available containers in its node.
+	   it monitors the available containers in its node and report to its master (Resource Manager)
+

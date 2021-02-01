@@ -1,0 +1,30 @@
+ Kafka:
+=====
+
+About Kafka
+- Kafka is used for building real-time data pipelines and streaming apps
+- It is horizontally scalable , fault-tolerant ,wicked fast and runs in production in thousand of companies
+
+kafka capabilities
+- Publish and subscibe to streams of record , like a message queue or enterprise messaging system
+- Store streams of records in a fault-tolerant durable way
+- process streams of records as they occur
+
+kafka  
+- Building real-time streaming data pipelines that reliably get data between systems of applications 
+- Building real-time streaming applications that transform or react to the streams of data.
+
+HBASE :
+-------
+
+Data is always sorted based on row id
+
+All data required for a specific row is self contained	
+
+architecture :
+==============
+Mater are name node(Region assignment)
+region server = it is running on data node
+hfile - where all the data is stored 
+WAL - write aahead log is used to write changed log(fault tolerance)
+memstore - location where data is there , once it is full it generates the hfile

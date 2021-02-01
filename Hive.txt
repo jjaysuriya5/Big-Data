@@ -1,0 +1,187 @@
+load data local inpath '/< path >/' overwride into table <table Name>;
+
+check wat happens
+
+check truncating a managed table with a permission
+
+wat is location of metastore when a table is chreated ?
+
+externam table give a new path and see if it is created
+
+Hive:
+----- 
+
+Data warehouse in Hadoop
+
+not supported all SQL query
+
+different modes:
+---------------
+	interactive mode , Batch mode , Inline mode
+
+connection :
+------------
+	interactive : beeline -u jdbc:hive2:// --silent=true
+
+creating db:
+------------
+	create database <name>;
+	use <name>;  >> to go the the database
+	show database; >> this will show all the available database
+
+creating table:
+---------------
+create table nysedaily 
+(stock_date date,
+stock_price_open double,
+stock_price_close double,
+stock_price_low double,
+stock_price_high double,
+stock_volume double)
+row format delimited 
+fields terminated by ","
+lines terminated by "\n"
+stored as textfile;
+
+load data local inpath '/home/manipalproshare/batch7/nysedaily_2016.csv' into table nysedaily;
+
+
+he db will be created in the below path , default path
+/user/hive/warehouse/<db name>.db
+
+afer loading the file is stored in the below path inside the table [ nysedaily ]
+/user/hive/warehouse/nyse_jayasuriya.db/nysedaily
+
+duplicates :
+
+duplicates are due to loading the same file multiple times:
+
+remove the duplicates we need to remove using -rm command / truncate table <n>
+
+set hive.metastore.warehouse.dir;
+
+assignment:
+-------------------
+
+select stock_symbol , ((stock_price_close - stock_price_open )/stock_price_open)*100 as `change%`
+from nysedaily;
+
+select distinct stock_symbol from nysedaily;
+
+select * from nysedaily where stock_price_close < stock_price_open limit 10;
+
+select month(stock_date) , count(*)
+from nysedaily 
+where stock_price_close = ( select max(stock_price_close) from  nysedaily )
+group by month(stock_date)
+
+select max(stock_price_close) from  nysedaily 
+
+select month(stock_date) , count(*)
+from nysedaily
+group by month(stock_date)
+
+---------------
+
+below 5 things are required for creating the table ?
+
+Name of table 
+columns and datatypes 
+row format( filed delimiter , line delimiter)
+file format 
+file location 
+
+
+
+---------------------------
+
+load data local inpath '/< path >/' overwride into table <table Name>;
+
+
+or we dont need to do a implicit conversion
+in IN we ned a explicit conversion ('05-01-2000') so conver it to string or date
+
+ in ( '05-01-2000' )
+date in ( date('05-01-2000') )
+
+year(date) between 1990 and 1999
+
+
+
+
+
+
+
+
++------------------+------------+----------+--+
+|     col_name     | data_type  | comment  |
++------------------+------------+----------+--+
+| department_id    | string     |          |
+| department_name  | string     |          |
+| manager_id       | string     |          |
+| location_id      | string     |          |
++------------------+------------+----------+--+
+0: jdbc:hive2://> desc employees;
+OK
++-----------------+------------+----------+--+
+|    col_name     | data_type  | comment  |
++-----------------+------------+----------+--+
+| employee_id     | string     |          |
+| last_name       | string     |          |
+| first_name      | string     |          |
+| email           | string     |          |
+| phone_number    | string     |          |
+| hire_date       | string     |          |
+| job_id          | string     |          |
+| salary          | int        |          |
+| commission_pct  | int        |          |
+| manager_id      | int        |          |
+| department_id   | int        |          |
++-----------------+------------+----------+--+
+0: jdbc:hive2://> desc job_grades;
+OK
++------------+------------+----------+--+
+|  col_name  | data_type  | comment  |
++------------+------------+----------+--+
+| minsalary  | int        |          |
+| maxsalary  | int        |          |
+| grade      | char(1)    |          |
++------------+------------+----------+--+
+
+select last_name , department_name from employees e inner join departments d on e.department_id = d.department_id  where e.department_id in (90,110);
+
+select last_name , first_name ,  department_name 
+
+non equi join :
+--------------
+
+select last_name , salary , grade 
+from employees join job_grades 
+on employees.salary between minsalary and maxsalary;
+
+The non equi join has to be implemented using theta style in Hive
+
+select last_name , salary , grade
+from employees , job_grades 
+where employees.salary between minsalary and maxsalary
+and department_id in (90,100);
+
+-------------
+joins in hive are default performed at the mapper side .
+mapper side are always faster . This is decided by the hive configuration parameter
+hive.auto.convert.join
+if this parameter is true then joins are performed only at mapper provided the data of both tables
+fit into the memory ( space )
+
+set hive.auto.convert.join = false -- > Performs the join by using both the mapper and the 
+reducer . this is usually used for joining 2 large tables which can not be joined only with the 
+help of a single mapper.
+
+ 
+
+create table nyse_may_2016 like ( select stock_price_open,stock_price_close,stock_price_low,stock_price_high,stock_volume  nysedaily );
+
+Insert into table nyse_may_2016 
+select * from nysedaily
+where month(stock_date) = 05 and year(stock_date) = 2016;
+

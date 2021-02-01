@@ -1,0 +1,16 @@
+select w.words , count(*) `freq` 
+from ( select explode(split(line,' ')) `words`  from raghu_textanalytics.book ) 
+w  group by w.words;
+
+select explode(split(line,' ')) `words` , '1' from raghu_textanalytics.book ;
+
+
+INSERT OVERWRITE DIRECTORY '/user/cdh7bmanipal20/hiveoutput'
+ROW FORMAT DELIMITED
+FIELDS TERMINATED by ','
+LINES TERMINATED BY '\n'
+select w.words , count(*) `freq` 
+from ( select explode(split(line,' ')) `words`  from raghu_textanalytics.book ) 
+w  group by w.words;
+
+hadoop fs -cat /user/cdh7bmanipal20/hiveoutput/* | head -n 4

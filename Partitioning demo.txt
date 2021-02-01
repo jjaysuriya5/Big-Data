@@ -1,0 +1,101 @@
+1. static partitioning
+
+create the below table without partition
+
+create  table nysedaily_part
+(stock_date date COMMENT 'Trading date',
+stock_symbol String COMMENT 'Company to which the stock belongs to',
+stock_price_open double COMMENT 'Opening price of the stock', 
+stock_price_close double COMMENT 'Closing price of the stock', 
+stock_price_low double COMMENT 'Min value of stock price during the day', 
+stock_price_high double COMMENT 'Max value of stock price during the day', 
+stock_volume int COMMENT 'Volume of stock traded during the day',
+stock_year int COMMENT 'Trading year') 
+row format delimited 
+fields terminated by ","
+lines terminated by "\n";
+
+
+load the data into this table
+
+load data local inpath '/home/manipalproshare/batch7/partitioned_data' into table nysedaily_part;
+
+select count(*),stock_symbol
+from nysedaily_part
+where stock_year = '1996'
+group by stock_symbol;
+ 
+
+Total MapReduce CPU Time Spent: 10 seconds 770 msec
+
+Now partition the data on year column
+
+create  table nysedaily_part1
+(stock_date date COMMENT 'Trading date',
+stock_symbol String COMMENT 'Company to which the stock belongs to',
+stock_price_open double COMMENT 'Opening price of the stock', 
+stock_price_close double COMMENT 'Closing price of the stock', 
+stock_price_low double COMMENT 'Min value of stock price during the day', 
+stock_price_high double COMMENT 'Max value of stock price during the day', 
+stock_volume int COMMENT 'Volume of stock traded during the day')
+PARTITIONED BY (stock_year String) 
+row format delimited 
+fields terminated by ","
+lines terminated by "\n";
+
+load data local inpath '/home/manipalproshare/batch7/partitioned_data/nysedaily_1996.csv' overwrite into table nysedaily_part1 partition (stock_year = '1996');
+load data local inpath '/home/manipalproshare/batch7/partitioned_data/nysedaily_1997.csv' overwrite into table nysedaily_part1 partition (stock_year = '1997');
+load data local inpath '/home/manipalproshare/batch7/partitioned_data/nysedaily_1998.csv' overwrite into table nysedaily_part1 partition (stock_year = '1998');
+load data local inpath '/home/manipalproshare/batch7/partitioned_data/nysedaily_2016.csv' overwrite into table nysedaily_part1 partition (stock_year = '2016');
+
+
+select count(*),stock_symbol
+ from nysedaily_part1
+where stock_year='1996'
+group by stock_symbol;
+
+Total MapReduce CPU Time Spent: 4 seconds 880 msec
+
+---------------------------------------------------------------------------------------
+Dynamic partitioning
+
+
+1.	Creating the partition table
+create  table nysedaily_part2
+(stock_date date COMMENT 'Trading date',
+stock_symbol String COMMENT 'Company to which the stock belongs to',
+stock_price_open double COMMENT 'Opening price of the stock', 
+stock_price_close double COMMENT 'Closing price of the stock', 
+stock_price_low double COMMENT 'Min value of stock price during the day', 
+stock_price_high double COMMENT 'Max value of stock price during the day', 
+stock_volume int COMMENT 'Volume of stock traded during the day')
+PARTITIONED BY (stock_year String) 
+row format delimited 
+fields terminated by ","
+lines terminated by "\n";
+2.	
+dynamic partitions are disabled by default. so please set the below parameter to allow dynamic partitions to be created
+set hive.exec.dynamic.partition.mode=nonstrict;
+
+3
+INSERT OVERWRITE TABLE nysedaily_part2 PARTITION(stock_year) select *, year(stock_date) as stock_year from nyse_raghu.nysedaily;
+
+
+Note : Partitioned column should not be defined along with other columns. it should appear only once in the partition by clause in the create table command. while loading the data, the data to the partitioned column should be specified at the last
+
+4.	Execute the below queries and check the time taken for execution. The query for nysedaily_part1 with the restriction on stock_year should execute faster.
+
+select count(*),stock_symbol
+from nysedaily_part2
+where stock_year='1990'
+group by stock_symbol;
+
+Total MapReduce CPU Time Spent: 4 seconds 30 msec 
+
+select count(*),stock_symbol
+from nysedaily
+where year(stock_date)='1990'
+group by stock_symbol;
+
+
+Total MapReduce CPU Time Spent: 13 seconds 720 msec

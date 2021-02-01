@@ -1,0 +1,199 @@
+Sqoop :
+======
+
+Setting up mysql
+
+1.	Start Mysql
+            $ mysql -u manipalprouser –p
+	    Enter the password as manipalpro
+2.      List the databases
+            mysql > show databases;
+3.      Create / Use an existing Database
+	   mysql > use retail_db
+4.      List the tables
+	   mysql > show tables;
+5.      Selecting the particular table and its Data
+	   mysql > select * from orders limit 10;
+
+---------------------------------------------------------------------------------------- 
+
+Listing Databases in a MySql Server : 
+====================================
+
+$> sqoop list-databases --connect jdbc:mysql://10.0.1.11/ --username manipalprouser --password manipalpro
+   sqoop list-databases --connect jdbc:mysql://10.0.1.11/ --username manipalprouser --password manipalpro
+
+ 
+
+Listing Tables in a MySql Server : 
+
+$> sqoop list-tables --connect jdbc:mysql://10.0.1.11/retail_db --username manipalprouser --password manipalpro
+
+ 
+
+sqoop list-tables --connect jdbc:mysql://10.0.1.11/hr --username manipalprouser --password manipalpro
+
+ 
+
+Sqoop Eval : Sqoop Eval is used to run simple SQL queries against a database :
+
+$> sqoop eval --connect jdbc:mysql://10.0.1.11/hr --query "SELECT last_name, department_id FROM employees limit 10" --username manipalprouser --password manipalpro
+
+ 
+
+1.      Importing order table in retain_db of mysql to HDFS path /retail_test_raghu. The directory on HDFS should not be existing
+
+                                         
+sqoop import --connect jdbc:mysql://10.0.1.11/retail_db \
+--table orders --username manipalprouser --password manipalpro \
+--target-dir /user/cdh7bmanipal20/retail_test_jayasuriya
+
+
+This command triggers a map reduce job to fetch the data from RDBMS
+
+How many mappers will be launched here? – 4 by default
+
+ 
+2.      Same as above but with 2 mappers
+
+ 
+$ hadoop fs -rm -r retail_test_jayasuriya
+
+sqoop import --connect jdbc:mysql://10.0.1.11/retail_db \
+--username manipalprouser --password manipalpro --table orders \
+-m 2 --target-dir /user/cdh7bmanipal20/retail_test_jayasuriya
+
+ 
+
+3. Same as above but will prompt for password
+
+hadoop fs -rm -r /user/cdh7bmanipal20/retail_test_jayasuriya
+
+sqoop import --connect jdbc:mysql://10.0.1.11/retail_db \
+--table orders --username manipalprouser -P \
+-m 2 --target-dir /user/cdh7bmanipal20/retail_test_jayasuriya
+
+Destination will be on the retail_db_new dir on HDFS. One folder per table gets created within this path
+
+
+
+4.      Importing all tables
+
+hadoop fs -rm -r /user/cdh7bmanipal20/retail_test_jayasuriya
+
+
+sqoop import-all-tables \
+--connect jdbc:mysql://10.0.1.11/retail_db \
+--username manipalprouser --password manipalpro \
+--warehouse-dir /user/cdh7bmanipal20/retail_test_jayasuriya
+
+Destination will be on the defaut home directory on HDFS : /home/cloudera
+
+One folder per table gets created within this path
+
+ 
+
+sqoop import-all-tables \
+--connect jdbc:mysql://localhost/retail_db \
+--username root --password cloudera
+
+ 
+
+5.      Creating hive tables
+
+Import the data from hr DB of mysql
+
+Load it on HDFs
+
+Create a hive table within a dataset called hr in hive
+
+Destination will be within the default warehouse directory of hive : /user/hive/warehouse/hr.db/employees
+
+ 
+
+In hive
+
+create database hr_jj;
+
+ 
+
+sqoop import --connect jdbc:mysql://10.0.1.11/hr --username manipalprouser --password manipalpro \
+--table employees --hive-import \
+--create-hive-table --hive-table hr_jj.employees
+
+ 
+6.      Exporting data
+
+create a database called nyse in mysql and create a table called nysedaily
+
+ 
+
+create database nyse_j;
+
+use nyse_j;
+
+create  table nysedaily
+
+(stock_date date,
+
+stock_symbol varchar(10),
+
+stock_price_open double,
+
+stock_price_close double,
+
+stock_price_low double,
+
+stock_price_high double,
+
+stock_volume int)
+
+ 
+
+ 
+
+Run the below command only if a database with name nyse exists which has an empty table as nysedaily in mysql
+
+ 
+
+sqoop export --connect jdbc:mysql://10.0.1.11/nyse_j --username manipalprouser --password manipalpro \
+--table nysedaily -m 4 --export-dir /user/cdh7bmanipal20/sock_data --input-fields-terminated-by ','
+
+ 
+
+ 
+
+ 
+
+7.       
+
+Incremental load – the newly added rows into the rdbms table shall only be imported in next subsequent sqoop-import
+
+ 
+
+sqoop import --connect jdbc:mysql://10.0.1.11/hr \
+
+--table departments --username manipalprouser --password manipalpro \
+
+-m 2 --target-dir /user/raghavendra/hr_departments
+
+ 
+
+Add 2 more rows to departments table in mysql
+
+ 
+
+mysql> insert into departments values(280,'Data Science',100,NULL);
+
+Query OK, 1 row affected (0.01 sec)
+
+ 
+
+mysql> insert into departments values(290,'AI',100,NULL);
+
+Query OK, 1 row affected (0.00 sec)
+
+ 
+
+sqoop import --connect jdbc:mysql://10.0.1.11/hr --table departments --username manipalprouser --password manipalpro
+ -m 2 --target-dir /user/raghavendra/hr_departments --incremental append  --check-column department_id --last-value 270

@@ -1,0 +1,46 @@
+
+COLLABORATIVE FILTERING:
+------------------------
+
+	- A general term for anny algorithm that relies on our behaviour
+	- Predict user ratings for product that have not been rated 
+
+Rating is a general term
+	- can be a rating given by user ---> Explicit Rating
+	- Can be based on a user preference that user has somehow indicated --->Implicit ratings
+
+Many algorithm to preform colloborative filtering:
+	- Commonly used technique is 'Latent Factor Analysis'
+
+Latent Factor Analysis
+	- Identify hidden factors that influence a user's rating
+	- To identify hidden factors , you need a user-product-rating matrix
+
+	- Spark's ML-Lib has been build-in class for applying ALS on user-product-rating matrix
+	- ML-Lib completely abstracts the implementation of ALS 
+
+Abstraction:
+===========
+
+	- Machine Learning algorithm are pretty complicated
+	- Python and R have libraries which allow you to plug and play ML agorithms with minimal effor , 
+however they don't work on a distributed enviroinment
+	
+	- Hadoop MapReduce is great for distributed computing , but it reqires you to implement the 
+algorithm yourself as map ansd reduce tasks
+
+	- Spark's ML-Lib has build-in modules for classification , regression , clustering , recommendation
+etc.. algorithms and the library takes care of running these algorithms across a cluster behind the scenes
+
+	- This is completely abstracts the programmer from implementing the ML algorithm or the 
+complexities of running it across a cluster 
+
+Performance :
+============
+
+	- Machine Learning algorithm are iterative (read data and do multiple passes over it before the 
+final results are computed )
+	- Hadoop Mapreduce is heavy with disk read writes (each stage of ezecution) , may not be  a efficient 
+option for ML implementation
+	- Since spark's RDD are in memory objects , they can make multiple passes over the same data with out 
+doing frequent disk writes	 

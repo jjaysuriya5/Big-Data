@@ -1,0 +1,66 @@
+Kernel :
+-------
+It is a hub of the unix operating system . 
+It allocates time and memory to program and handles the response to system call
+
+Shell:
+------
+This acts as an interface between the user and the kernel 
+
+>> Every thing in a unix is a file or process
+process - executing program / file - collection of data
+
+top directory is root ( / )
+
+Listing files:
+-------------
+
+
+Home >> Labs >> Day1 >>session1
+    	      >> Day2 >>session2
+
+
+ls >> this will give the files in the current directory
+ls -R >> this will give the files in the current directory and
+	 the files in side other folder s in the directory
+ls -a >> this is used to display hidden files
+	( <filename> this is format of hidden file)
+ls ~  >> this list the details in the home path.
+ls Day1/sesion  >> this is used to list files in the path 
+		(make sure ur current path has the first folder(Day1)
+ls - l [ long listing / directory or file ]
+
+my current path is Day 1 ,
+if I want to go to some othe path in my main folder without changing path
+do the below :
+ls ~/labs/day2/session2
+ 
+Making Directory:
+-----------------
+
+mkdir Labs1  >. this will make a path in the current directory
+mkdir -p /Labs/Day1/Session/Assign  >> to need multiple new path use the command -p
+
+Changing Directory:
+-------------------
+
+cd   >>> this will change to the home directory
+cd .. >> this will change to the upper parrent directory by one
+cd /Labs/Day1   >> this will change to the path
+cd ../.. >> this will change to the upper directory by two
+
+printing working diretory:
+--------------------------
+
+pwd
+tree Labs
+
+Copying file:
+----------------
+
+cp file1 file2
+cp ~/Labs/Day1/session1/assign1/file1.txt Labs2/  
+{ full path to be mentioned , no file name means same name}
+cp ~/Labs/Day1/session1/assign1/file1.txt Labs2/abc.txt
+cp ~/Labs/Day1/session1/assign1/file1.txt .  [ in the home paage the path is created ]
+cp file1 file1 [ does not work ]
